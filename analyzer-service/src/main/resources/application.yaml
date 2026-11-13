@@ -39,3 +39,7 @@ kafka:
   bootstrap-servers: localhost:9092
   topic:
     analysis-created: analysis-created
+
+report:
+  scheduler:
+    cron: "0 */1 * * * *"
