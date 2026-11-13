@@ -1,12 +1,15 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.consumer.AnalysisCreatedConsumer;
 import com.example.demo.dto.feign.QuoteListResponse;
 import com.example.demo.dto.feign.QuoteResponse;
 import com.example.demo.dto.request.CharAnalysisRequest;
 import com.example.demo.dto.response.CharAnalysisResponse;
 import com.example.demo.dto.response.QuotePageAnalysisResponse;
+import com.example.demo.dto.response.TrendingResponse;
 import com.example.demo.entity.CharAnalysis;
 import com.example.demo.exception.*;
+import com.example.demo.producer.KafkaProducer;
 import com.example.demo.repository.CharAnalysisRepository;
 import com.example.demo.rest.QuoteClient;
 import com.example.demo.service.CharAnalysisService;
@@ -17,11 +20,18 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -34,6 +44,11 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
     private final CharAnalysisRepository charAnalysisRepository;
     private final RiwayatService riwayatService;
     private final QuoteAsyncService quoteAsyncService;
+    private final KafkaProducer kafkaProducer;
+    private final StringRedisTemplate stringRedisTemplate;
+
+    @Value("${kafka.topic.analysis-created}")
+    private String topic;
 
     @Override
     public List<CharAnalysisResponse> cari(String kata) {
@@ -52,6 +67,7 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
     }
 
     @Override
+    @CacheEvict(value = "analysis", allEntries = true)
     public CharAnalysisResponse analisis(CharAnalysisRequest request) {
         String kalimat = request.getKalimat().trim();
         if (charAnalysisRepository.existsByKalimatIgnoreCase(kalimat)) {
@@ -62,7 +78,9 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
     }
 
     @Override
+    @Cacheable(value = "analysis", key = "#id")
     public CharAnalysisResponse cariById(Long id) {
+        log.info("Caching CharAnalysis with id: {}", id);
         CharAnalysis data = charAnalysisRepository.findById(id)
                 .orElseThrow(() -> new AnalysisNotFoundException(id));
         return toResponse(data);
@@ -175,6 +193,21 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
         return hasil;
     }
 
+    @Override
+    public List<TrendingResponse> trending(int limit) {
+        Set<ZSetOperations.TypedTuple<String>> dataSet = stringRedisTemplate.opsForZSet()
+                .reverseRangeWithScores(AnalysisCreatedConsumer.TRENDING_KEY, 0, limit - 1L);
+
+        List<TrendingResponse> results = new ArrayList<>();
+        if (dataSet != null) {
+            for (ZSetOperations.TypedTuple<String> data : dataSet) {
+                long score = data.getScore() == null ? 0L : data.getScore().longValue();
+                results.add(new TrendingResponse(data.getValue(), score));
+            }
+        }
+        return results;
+    }
+
     private CharAnalysisResponse simpan(String kalimat, String author) {
         CharCounter counter = new CharCounter(kalimat);
         CharAnalysis data = new CharAnalysis();
@@ -184,6 +217,7 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
         data.setTotalHuruf(counter.getTotalHuruf());
         data.setCreatedAt(LocalDateTime.now());
         charAnalysisRepository.save(data);
+        kafkaProducer.sendMessage(topic, kalimat);
 
         riwayatService.catatRiwayat(data.getId(), kalimat);
         log.info("[{}] response dikirim ke client", Thread.currentThread().getName());

@@ -13,6 +13,14 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
+
+
 server:
   port: 8081
   servlet:
@@ -26,3 +34,8 @@ eureka:
 jwt:
   secret: bd3dae5fb91f88a4f0978222dfd58f59a124257cb081486387cbae9df11fb879
   expiration: 3600000
+
+kafka:
+  bootstrap-servers: localhost:9092
+  topic:
+    analysis-created: analysis-created

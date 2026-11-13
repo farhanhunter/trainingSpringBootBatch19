@@ -4,6 +4,7 @@ import com.example.demo.dto.request.CharAnalysisRequest;
 import com.example.demo.dto.response.BaseResponse;
 import com.example.demo.dto.response.CharAnalysisResponse;
 import com.example.demo.dto.response.QuotePageAnalysisResponse;
+import com.example.demo.dto.response.TrendingResponse;
 import com.example.demo.service.CharAnalysisService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -77,5 +78,10 @@ public class AnalyzerController {
     @PostMapping("/from-qoute/double")
     public BaseResponse<List<CharAnalysisResponse>> fromDoubleQuote() {
         return BaseResponse.ok(charAnalysisService.analysisDoubleQuote());
+    }
+
+    @GetMapping("/trending")
+    public BaseResponse<List<TrendingResponse>> trending(@RequestParam(defaultValue = "5") int limit) {
+        return BaseResponse.ok(charAnalysisService.trending(limit));
     }
 }

@@ -4,11 +4,12 @@ import com.example.demo.entity.CharAnalysis;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Map;
 
 @Data
 @AllArgsConstructor
-public class CharAnalysisResponse {
+public class CharAnalysisResponse implements Serializable {
     private Long id;
     private String kata;
     private String author;

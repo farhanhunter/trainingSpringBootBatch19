@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.request.CharAnalysisRequest;
 import com.example.demo.dto.response.CharAnalysisResponse;
 import com.example.demo.dto.response.QuotePageAnalysisResponse;
+import com.example.demo.dto.response.TrendingResponse;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface CharAnalysisService {
     QuotePageAnalysisResponse analisisHalamanQuote(int limit, int skip);
 
     List<CharAnalysisResponse> analysisDoubleQuote();
+
+    List<TrendingResponse> trending(int limit);
 }
