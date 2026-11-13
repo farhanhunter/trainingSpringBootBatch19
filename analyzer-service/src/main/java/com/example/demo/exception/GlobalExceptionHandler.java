@@ -16,6 +16,11 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<BaseResponse<Object>> handleFileStorage(FileStorageException exception) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+    }
+
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<BaseResponse<Object>> handleUserAlreadyExist(UserAlreadyExistException exception) {
         return build(HttpStatus.BAD_REQUEST, exception.getMessage());

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CharAnalysisRepository extends JpaRepository<CharAnalysis, Long> {
@@ -18,4 +19,6 @@ public interface CharAnalysisRepository extends JpaRepository<CharAnalysis, Long
     @Query(value = "SELECT * FROM mst_char_analysis ORDER BY created_at DESC LIMIT 5",
             nativeQuery = true)
     List<CharAnalysis> limaTerbaru();
+
+    List<CharAnalysis> findByCreatedAtBetweenOrderByIdAsc(LocalDateTime dari, LocalDateTime sampai);
 }

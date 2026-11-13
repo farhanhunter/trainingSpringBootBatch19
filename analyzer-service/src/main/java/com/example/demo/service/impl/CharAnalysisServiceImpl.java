@@ -102,6 +102,8 @@ public class CharAnalysisServiceImpl implements CharAnalysisService {
         try {
             quote = client.getQuote();
         } catch (FeignException feignException) {
+            log.error("Feign ke quote-service gagal: status={}, pesan={}",
+                    feignException.status(), feignException.getMessage());
             throw new QuoteUnavailableException("Service unavailable");
         }
         return simpan(quote.getQuote(), quote.getAuthor());

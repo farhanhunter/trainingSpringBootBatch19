@@ -43,3 +43,12 @@ kafka:
 report:
   scheduler:
     cron: "0 */1 * * * *"
+
+minio:
+  url: http://localhost:9000
+  access:
+    name: minioadmin
+    secret: minioadmin
+  bucket:
+    name: analyzer-report
+  presigned-expiry-minutes: 10
