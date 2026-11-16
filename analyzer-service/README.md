@@ -109,7 +109,7 @@ distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-mav
 Tanda kutip tunggal wajib dipakai supaya shell tidak menerjemahkan `$`:
 
 ```bash
-cd demo
+cd analyze
 rm -r './${project.build.directory}'
 ```
 
@@ -145,7 +145,7 @@ File `mvnw` ada di folder `demo`, bukan di root repository.
 ### Solusi
 
 ```bash
-cd demo
+cd analyze
 ./mvnw test
 ```
 

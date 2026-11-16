@@ -48,10 +48,10 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 			<version>5.0.3</version>
 		</dependency>
-		<!-- BCrypt untuk hash password (hanya modul crypto, bukan Spring Security penuh) -->
+		<!-- Spring Security penuh: authorization berbasis role (@PreAuthorize). Sudah termasuk BCrypt -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-crypto</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
 		<!-- JJWT Library versi 0.12.6 -->
