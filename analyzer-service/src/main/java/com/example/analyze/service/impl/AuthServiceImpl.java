@@ -57,15 +57,6 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponseDto(user.getUsername(), token, roles);
     }
 
-    @Override
-    public UserEntity loadUserByUsername(String username) {
-        UserEntity user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UnauthrorizedException("User Not Found with username: " + username);
-        }
-        return user;
-    }
-
     // sama seperti bezkoder: "admin" -> ADMIN, "mod" -> MODERATOR, lainnya / kosong -> USER
     private Set<Role> tentukanRoles(Set<String> namaRoles) {
         Set<Role> roles = new HashSet<>();
